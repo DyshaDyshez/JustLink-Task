@@ -1,35 +1,77 @@
+/* ============================================
+   JUSTLINK TASK — ТЁПЛАЯ ПАЛИТРА (TERRACOTTA)
+   ============================================ */
+
+/* ---------- ПЕРЕМЕННЫЕ (СВЕТЛАЯ ТЕМА) ---------- */
+:root {
+    /* Основные цвета фона */
+    --bg-bg: #ffe7d0;           /* Old Lace — кремовый фон страницы */
+    --bg-surface: #FFFFFF;       /* Белый для карточек и панелей */
+    --bg-sidebar: #967e73d0;       /* Тёмный сайдбар */
+    --bg-card: #FFFFFF;          /* Карточки */
+    --bg-hover: #F5EDE0;         /* Подложка при наведении */
+    --bg-bg-card: #f8f2ec;
+    
+    /* Акценты (терракота + песок) */
+    --accent-primary: #E2725B;   /* Терракота — основной акцент */
+    --accent-primary-dark: #C85C45;
+    --accent-secondary: #C48B5E; /* Песок — вторичный акцент */
+    --accent-secondary-light: #D9A87E;
+    
+    /* Текст */
+    --text-primary: #2C2C2C;     /* Тёмный для основного текста */
+    --text-secondary: #666666;   /* Серый для второстепенного */
+    --text-tertiary: #999999;    /* Ещё светлее */
+    --text-inverse: #FFFFFF;     /* Белый текст на тёмном фоне */
+    
+    /* Границы и тени */
+    --border-light: #ffa65d;     /* Тёплая светлая граница */
+    --border-dark: #E0D5C5;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+    
+    /* Статусы */
+    --status-success: #4CAF50;
+    --status-warning: #FF9800;
+    --status-error: #F44336;
+    --status-info: #2196F3;
+}
+
+/* ---------- ПЕРЕМЕННЫЕ (ТЁМНАЯ ТЕМА) ---------- */
+body.dark-theme {
+    --bg-bg: #1a1a2e;
+    --bg-surface: #24243a;
+    --bg-sidebar: #0f0f1a;
+    --bg-card: #1e1e30;
+    --bg-hover: #2a2a40;
+    --bg-bg-card: #24243a;
+    
+    --text-primary: #E0E0E0;
+    --text-secondary: #A0A0A0;
+    --text-tertiary: #707070;
+    
+    --border-light: #33334a;
+    --border-dark: #44445a;
+    
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- БАЗОВЫЕ СТИЛИ ---------- */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-:root {
-    --bg-cream: #FDF5E6;
-    --bg-white: #FFFFFF;
-    --bg-card: #FFFFFF;
-    --bg-sidebar: #1E1E24;
-    --accent-terracotta: #E2725B;
-    --accent-terracotta-dark: #C85C45;
-    --accent-sand: #C48B5E;
-    --accent-sand-light: #D9A87E;
-    --text-dark: #2C2C2C;
-    --text-gray: #666666;
-    --text-muted: #999999;
-    --border-light: #F0E6D8;
-    --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
-    --shadow-lg: 0 8px 24px rgba(0,0,0,0.12);
-    --success: #4CAF50;
-    --warning: #FF9800;
-    --error: #F44336;
-}
-
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     line-height: 1.6;
-    color: var(--text-dark);
-    background: var(--bg-cream);
+    color: var(--text-primary);
+    background: var(--bg-bg);
+    transition: background 0.3s, color 0.3s;
 }
 
 .container {
@@ -38,10 +80,10 @@ body {
     padding: 0 20px;
 }
 
-/* Hero секция */
+/* ---------- HERO СЕКЦИЯ (ЛЕНДИНГ) ---------- */
 .hero {
-    background: linear-gradient(135deg, var(--accent-terracotta) 0%, var(--accent-sand) 100%);
-    color: white;
+    background: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+    color: var(--text-inverse);
     padding: 80px 0;
     text-align: center;
 }
@@ -57,8 +99,8 @@ body {
 .logo-icon {
     font-size: 32px;
     font-weight: bold;
-    background: white;
-    color: var(--accent-terracotta);
+    background: var(--text-inverse);
+    color: var(--accent-primary);
     width: 50px;
     height: 50px;
     border-radius: 12px;
@@ -84,9 +126,10 @@ body {
     opacity: 0.95;
 }
 
+/* ---------- КНОПКИ ---------- */
 .btn-primary {
-    background: white;
-    color: var(--accent-terracotta);
+    background: var(--text-inverse);
+    color: var(--accent-primary);
     border: none;
     padding: 14px 32px;
     font-size: 16px;
@@ -98,20 +141,67 @@ body {
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    box-shadow: var(--shadow-md);
 }
 
-/* Features секция */
+.btn-secondary {
+    background: var(--accent-secondary);
+    color: var(--text-inverse);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-secondary:hover {
+    background: var(--accent-secondary-light);
+}
+
+.btn-icon {
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--accent-primary-dark);
+}
+
+.btn-block {
+    width: 100%;
+}
+
+/* ---------- КАРТОЧКИ (ОБЩИЕ) ---------- */
+.card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+}
+
+/* ---------- FEATURES (ЛЕНДИНГ) ---------- */
 .features {
     padding: 80px 0;
-    background: var(--bg-white);
+    background: var(--bg-surface);
 }
 
 .features h2 {
     text-align: center;
     font-size: 36px;
     margin-bottom: 50px;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .features-grid {
@@ -124,9 +214,9 @@ body {
     text-align: center;
     padding: 30px;
     border-radius: 16px;
-    background: var(--bg-cream);
-    transition: transform 0.3s, box-shadow 0.3s;
+    background: var(--bg-bg);
     border: 1px solid var(--border-light);
+    transition: transform 0.3s, box-shadow 0.3s;
 }
 
 .feature-card:hover {
@@ -142,22 +232,23 @@ body {
 .feature-card h3 {
     font-size: 22px;
     margin-bottom: 15px;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .feature-card p {
-    color: var(--text-gray);
+    color: var(--text-secondary);
     font-size: 15px;
 }
 
-/* Modal окна */
+/* ---------- МОДАЛКИ (ОБЫЧНЫЕ) ---------- */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -165,7 +256,7 @@ body {
 }
 
 .modal-content {
-    background: var(--bg-white);
+    background: var(--bg-surface);
     padding: 40px;
     border-radius: 20px;
     max-width: 450px;
@@ -180,23 +271,25 @@ body {
     right: 25px;
     font-size: 28px;
     cursor: pointer;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
+    transition: color 0.2s;
 }
 
 .modal-close:hover {
-    color: var(--text-dark);
+    color: var(--status-error);
 }
 
 .modal-content h2 {
     margin-bottom: 10px;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .modal-content p {
-    color: var(--text-gray);
+    color: var(--text-secondary);
     margin-bottom: 25px;
 }
 
+/* ---------- ФОРМЫ ---------- */
 .form-group {
     margin-bottom: 20px;
 }
@@ -205,7 +298,7 @@ body {
     display: block;
     margin-bottom: 8px;
     font-weight: 500;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .form-group input {
@@ -214,18 +307,14 @@ body {
     border: 1px solid var(--border-light);
     border-radius: 8px;
     font-size: 16px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
     transition: border-color 0.2s;
 }
 
 .form-group input:focus {
     outline: none;
-    border-color: var(--accent-terracotta);
-}
-
-.btn-block {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
+    border-color: var(--accent-primary);
 }
 
 .form-footer {
@@ -235,7 +324,7 @@ body {
 }
 
 .form-footer a {
-    color: var(--accent-terracotta);
+    color: var(--accent-primary);
     text-decoration: none;
     cursor: pointer;
 }
@@ -244,39 +333,18 @@ body {
     text-decoration: underline;
 }
 
-/* Футер */
+/* ---------- ФУТЕР ---------- */
 .footer {
     background: var(--bg-sidebar);
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     text-align: center;
     padding: 30px 0;
     margin-top: 60px;
 }
 
-/* Адаптивность */
-@media (max-width: 768px) {
-    .hero h1 {
-        font-size: 32px;
-    }
-    
-    .subtitle {
-        font-size: 18px;
-    }
-    
-    .features h2 {
-        font-size: 28px;
-    }
-    
-    .modal-content {
-        padding: 30px 20px;
-    }
-}
-
-/* ===== Админ панель ===== */
+/* ========== АДМИН ПАНЕЛЬ ========== */
 .admin-body {
-    background: var(--bg-cream);
-    margin: 0;
-    padding: 0;
+    background: var(--bg-bg);
 }
 
 .admin-layout {
@@ -284,11 +352,11 @@ body {
     min-height: 100vh;
 }
 
-/* Сайдбар */
+/* ---------- САЙДБАР ---------- */
 .admin-sidebar {
     width: 280px;
     background: var(--bg-sidebar);
-    color: #e0e0e0;
+    color: var(--text-secondary);
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -298,7 +366,7 @@ body {
 
 .sidebar-header {
     padding: 24px 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .logo-small {
@@ -307,11 +375,12 @@ body {
     gap: 10px;
     font-size: 20px;
     font-weight: bold;
+    color: var(--text-inverse);
 }
 
 .logo-small .logo-icon {
-    background: var(--accent-terracotta);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-inverse);
     width: 32px;
     height: 32px;
     font-size: 20px;
@@ -319,21 +388,21 @@ body {
 
 .sidebar-section {
     padding: 20px;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar-section h3 {
     font-size: 12px;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     margin-bottom: 15px;
 }
 
 .btn-sidebar-primary {
     width: 100%;
-    background: var(--accent-terracotta);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-inverse);
     border: none;
     padding: 12px;
     border-radius: 8px;
@@ -344,7 +413,7 @@ body {
 }
 
 .btn-sidebar-primary:hover {
-    background: var(--accent-terracotta-dark);
+    background: var(--accent-primary-dark);
 }
 
 .rooms-list {
@@ -355,7 +424,7 @@ body {
 
 .room-item {
     padding: 10px 12px;
-    background: rgba(255,255,255,0.1);
+    background: rgba(252, 223, 200, 0.89);
     border-radius: 8px;
     cursor: pointer;
     transition: background 0.2s;
@@ -363,15 +432,16 @@ body {
 }
 
 .room-item:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.15);
 }
 
 .room-item.active {
-    background: var(--accent-terracotta);
+    background: var(--accent-primary);
+    color: var(--text-inverse);
 }
 
 .empty-message {
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 13px;
     text-align: center;
     padding: 20px;
@@ -380,13 +450,13 @@ body {
 .sidebar-footer {
     padding: 20px;
     margin-top: auto;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-logout {
     width: 100%;
-    background: rgba(255,255,255,0.1);
-    color: white;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-inverse);
     border: none;
     padding: 10px;
     border-radius: 8px;
@@ -396,10 +466,10 @@ body {
 }
 
 .btn-logout:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
-/* Основной контент */
+/* ---------- ОСНОВНОЙ КОНТЕНТ (АДМИН) ---------- */
 .admin-main {
     flex: 1;
     margin-left: 280px;
@@ -407,7 +477,7 @@ body {
 }
 
 .room-content {
-    background: var(--bg-white);
+    background: var(--bg-surface);
     border-radius: 16px;
     padding: 30px;
     min-height: calc(100vh - 60px);
@@ -417,26 +487,97 @@ body {
 .welcome-message {
     text-align: center;
     padding: 60px 20px;
-    color: var(--text-gray);
+    color: var(--text-secondary);
 }
 
 .welcome-message h2 {
-    color: var(--text-dark);
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 
-/* Адаптивность */
+/* ---------- КОМНАТА: ДВЕ КОЛОНКИ ---------- */
+.room-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.room-title {
+    font-size: 28px;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.room-subtitle {
+    color: var(--text-secondary);
+    margin: 5px 0 0;
+}
+
+.room-two-columns {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 30px;
+}
+
 @media (max-width: 768px) {
-    .admin-sidebar {
-        width: 240px;
-    }
-    .admin-main {
-        margin-left: 240px;
-        padding: 20px;
+    .room-two-columns {
+        grid-template-columns: 1fr;
     }
 }
 
-/* ===== КАРТОЧКИ СОТРУДНИКОВ ===== */
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.column-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+/* ---------- ВКЛАДКИ ---------- */
+.room-tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 1px solid var(--border-light);
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+}
+
+.room-tab {
+    background: none;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.room-tab:hover {
+    background: var(--bg-bg);
+}
+
+.room-tab.active {
+    background: var(--accent-primary);
+    color: var(--text-inverse);
+}
+
+.tab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* ---------- КАРТОЧКИ СОТРУДНИКОВ ---------- */
 .employees-grid {
     display: flex;
     flex-direction: column;
@@ -444,15 +585,15 @@ body {
 }
 
 .employee-card {
-    background: var(--bg-white);
+    background: var(--bg-card);
     border-radius: 12px;
     padding: 12px;
     display: flex;
     align-items: center;
     gap: 12px;
     box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s;
     border: 1px solid var(--border-light);
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .employee-card:hover {
@@ -473,18 +614,18 @@ body {
 
 .employee-name {
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .employee-tasks-count {
     font-size: 12px;
-    color: var(--accent-terracotta);
+    color: var(--accent-primary);
 }
 
 .employee-telegram {
     font-size: 11px;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     margin-top: 4px;
 }
 
@@ -493,7 +634,9 @@ body {
     gap: 8px;
 }
 
-.employee-link-btn, .employee-delete-btn, .employee-edit-btn {
+.employee-link-btn,
+.employee-delete-btn,
+.employee-edit-btn {
     background: none;
     border: none;
     font-size: 18px;
@@ -504,18 +647,18 @@ body {
 }
 
 .employee-link-btn:hover {
-    background: #e8f4e8;
+    background: rgba(76, 175, 80, 0.1);
 }
 
 .employee-edit-btn:hover {
-    background: #FFF3E0;
+    background: rgba(255, 152, 0, 0.1);
 }
 
 .employee-delete-btn:hover {
-    background: #FEE;
+    background: rgba(244, 67, 54, 0.1);
 }
 
-/* ===== КАРТОЧКИ ЗАДАЧ ===== */
+/* ---------- КАРТОЧКИ ЗАДАЧ ---------- */
 .tasks-list {
     display: flex;
     flex-direction: column;
@@ -523,11 +666,11 @@ body {
 }
 
 .task-card {
-    background: var(--bg-white);
+    background: #FFF2E5;
     border-radius: 12px;
     padding: 16px;
     box-shadow: var(--shadow-sm);
-    border-left: 4px solid var(--accent-terracotta);
+    border-left: 4px solid var(--accent-primary);
     transition: transform 0.2s;
 }
 
@@ -544,19 +687,19 @@ body {
 
 .task-title {
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .task-urgent {
-    background: var(--warning);
-    color: white;
+    background: var(--status-warning);
+    color: var(--text-inverse);
     font-size: 11px;
     padding: 2px 8px;
     border-radius: 20px;
 }
 
 .task-description {
-    color: var(--text-gray);
+    color: var(--text-secondary);
     font-size: 13px;
     margin-bottom: 12px;
 }
@@ -565,8 +708,18 @@ body {
     display: flex;
     gap: 16px;
     font-size: 12px;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     margin-bottom: 12px;
+}
+
+.task-deadline.soon {
+    color: var(--status-warning);
+    font-weight: 500;
+}
+
+.task-deadline.overdue {
+    color: var(--status-error);
+    font-weight: 500;
 }
 
 .task-actions {
@@ -574,7 +727,8 @@ body {
     gap: 10px;
 }
 
-.task-done-btn, .task-fail-btn {
+.task-done-btn,
+.task-fail-btn {
     padding: 6px 14px;
     border: none;
     border-radius: 8px;
@@ -584,23 +738,24 @@ body {
 }
 
 .task-done-btn {
-    background: var(--success);
-    color: white;
+    background: var(--status-success);
+    color: var(--text-inverse);
 }
 
 .task-fail-btn {
-    background: var(--error);
-    color: white;
+    background: var(--status-error);
+    color: var(--text-inverse);
 }
 
-.task-done-btn:hover, .task-fail-btn:hover {
+.task-done-btn:hover,
+.task-fail-btn:hover {
     opacity: 0.85;
 }
 
-/* ===== ВЫПОЛНЕННЫЕ ЗАДАЧИ ===== */
+/* ---------- ВЫПОЛНЕННЫЕ ЗАДАЧИ ---------- */
 .completed-section {
     margin-top: 24px;
-    background: var(--bg-cream);
+    background: var(--bg-bg);
     border-radius: 12px;
     padding: 12px;
 }
@@ -608,7 +763,7 @@ body {
 .completed-summary {
     cursor: pointer;
     font-weight: 600;
-    color: var(--success);
+    color: var(--status-success);
     padding: 8px;
 }
 
@@ -626,25 +781,25 @@ body {
 }
 
 .completed-meta {
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     font-size: 11px;
 }
 
 .completed-more {
-    color: var(--accent-terracotta);
+    color: var(--accent-primary);
     font-size: 12px;
     padding: 8px;
     text-align: center;
 }
 
-/* ===== МОДАЛКИ ===== */
+/* ---------- МОДАЛКИ ДЛЯ ЗАДАЧ И СОТРУДНИКОВ ---------- */
 .modal-task {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -653,7 +808,7 @@ body {
 }
 
 .modal-task-content {
-    background: var(--bg-white);
+    background: var(--bg-surface);
     border-radius: 20px;
     width: 500px;
     max-width: 90%;
@@ -674,142 +829,47 @@ body {
     padding: 20px;
 }
 
-.task-input, .task-textarea, .task-select {
+.modal-close-task,
+.modal-close-employee {
+    font-size: 28px;
+    cursor: pointer;
+    color: var(--text-tertiary);
+    transition: color 0.2s;
+}
+
+.modal-close-task:hover,
+.modal-close-employee:hover {
+    color: var(--status-error);
+}
+
+.task-input,
+.task-textarea,
+.task-select {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
     border: 1px solid var(--border-light);
     border-radius: 8px;
     font-size: 14px;
-    background: var(--bg-white);
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
-.task-input:focus, .task-textarea:focus, .task-select:focus {
+.task-input:focus,
+.task-textarea:focus,
+.task-select:focus {
     outline: none;
-    border-color: var(--accent-terracotta);
+    border-color: var(--accent-primary);
 }
 
-.modal-close-task, .modal-close-employee {
-    font-size: 28px;
-    cursor: pointer;
-    color: var(--text-muted);
-}
-
-/* ===== СТРАНИЦА СОТРУДНИКА ===== */
-.employee-body {
-    background: var(--bg-cream);
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-}
-
-.employee-container {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-
-.employee-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-white);
-    border-radius: 16px;
-    margin-bottom: 24px;
-    padding: 16px 24px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-light);
-}
-
-.employee-name-badge {
-    font-weight: 600;
-    color: var(--text-dark);
-    background: var(--bg-cream);
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 14px;
-}
-
-.employee-title {
-    font-size: 24px;
-    color: var(--text-dark);
-    margin-bottom: 24px;
-}
-
-.employee-task-card {
-    background: var(--bg-white);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s, box-shadow 0.2s;
-    border-left: 4px solid var(--accent-terracotta);
-}
-
-.employee-task-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-}
-
-.employee-task-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: var(--text-dark);
-}
-
-.employee-task-desc {
-    color: var(--text-gray);
-    font-size: 14px;
-    margin-bottom: 12px;
-}
-
-.task-deadline {
-    font-size: 13px;
-    color: var(--text-muted);
-}
-
-.task-deadline.soon {
-    color: var(--warning);
-    font-weight: 500;
-}
-
-.task-deadline.overdue {
-    color: var(--error);
-    font-weight: 500;
-}
-
-.employee-completed-section {
-    background: #FF780021;
-    border-radius: 16px;
-    padding: 16px;
-    margin-top: 16px;
-}
-
-.employee-completed-summary {
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--success);
-    padding: 8px;
-    font-size: 16px;
-}
-
-.failed-reason {
-    font-size: 12px;
-    color: var(--error);
-    margin-top: 6px;
-    padding-left: 20px;
-}
-
-/* ===== СТИЛИЗОВАННЫЕ МОДАЛКИ ===== */
+/* ---------- КАСТОМНЫЕ МОДАЛКИ (TOAST/ALERT) ---------- */
 .custom-modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -818,7 +878,7 @@ body {
 }
 
 .custom-modal-container {
-    background: var(--bg-white);
+    background: var(--bg-surface);
     border: 1px solid var(--border-light);
     border-radius: 16px;
     width: 90%;
@@ -845,7 +905,7 @@ body {
     justify-content: space-between;
     align-items: center;
     font-weight: 600;
-    color: var(--text-dark);
+    color: var(--text-primary);
 }
 
 .custom-modal-close {
@@ -853,33 +913,37 @@ body {
     border: none;
     font-size: 24px;
     cursor: pointer;
-    color: var(--text-muted);
+    color: var(--text-tertiary);
     transition: color 0.2s;
 }
 
 .custom-modal-close:hover {
-    color: var(--error);
+    color: var(--status-error);
 }
 
 .custom-modal-body {
     padding: 20px;
-    color: var(--text-gray);
+    color: var(--text-secondary);
+}
+
+.custom-modal-body p {
+    margin-bottom: 16px;
 }
 
 .custom-modal-input {
     width: 100%;
     padding: 12px;
-    background: var(--bg-white);
+    background: var(--bg-surface);
     border: 1px solid var(--border-light);
     border-radius: 8px;
-    color: var(--text-dark);
+    color: var(--text-primary);
     font-size: 14px;
     transition: border-color 0.2s;
 }
 
 .custom-modal-input:focus {
     outline: none;
-    border-color: var(--accent-terracotta);
+    border-color: var(--accent-primary);
 }
 
 .custom-modal-field {
@@ -890,7 +954,7 @@ body {
     display: block;
     margin-bottom: 8px;
     font-size: 13px;
-    color: var(--text-gray);
+    color: var(--text-secondary);
 }
 
 .custom-modal-footer {
@@ -903,112 +967,33 @@ body {
 
 .custom-modal-btn {
     padding: 8px 20px;
-    background: var(--bg-white);
+    background: var(--bg-surface);
     border: 1px solid var(--border-light);
     border-radius: 8px;
-    color: var(--text-dark);
+    color: var(--text-primary);
     cursor: pointer;
     transition: all 0.2s;
 }
 
 .custom-modal-btn:hover {
-    background: var(--accent-terracotta);
-    border-color: var(--accent-terracotta);
-    color: white;
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--text-inverse);
 }
 
 .custom-modal-confirm {
-    background: var(--accent-terracotta);
-    border-color: var(--accent-terracotta);
-    color: white;
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+    color: var(--text-inverse);
 }
 
 .custom-modal-cancel:hover {
-    background: var(--error);
-    border-color: var(--error);
-    color: white;
+    background: var(--status-error);
+    border-color: var(--status-error);
+    color: var(--text-inverse);
 }
 
-.btn-icon {
-    background: var(--accent-terracotta);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    font-size: 13px;
-    margin: 10px;
-}
-
-.btn-icon:hover {
-    background: var(--accent-terracotta-dark);
-}
-
-.btn-secondary {
-    background: var(--accent-sand);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.btn-secondary:hover {
-    background: var(--accent-sand-light);
-}
-
-.empty-card {
-    text-align: center;
-    padding: 40px 20px;
-    background: #FF780021;
-    border-radius: 12px;
-    color: var(--text-muted);
-    margin: 10px;
-}
-
-.loading-spinner {
-    text-align: center;
-    padding: 20px;
-    color: var(--text-muted);
-}
-
-/* ===== ВКЛАДКИ ===== */
-.room-tabs {
-    display: flex;
-    gap: 8px;
-    border-bottom: 1px solid var(--border-light, #e0e0e0);
-    margin-bottom: 24px;
-    padding-bottom: 12px;
-}
-
-.room-tab {
-    background: none;
-    border: none;
-    padding: 8px 16px;
-    font-size: 14px;
-    cursor: pointer;
-    color: var(--text-gray, #666);
-    border-radius: 8px;
-    transition: all 0.2s;
-}
-
-.room-tab:hover {
-    background: var(--bg-cream, #f5f0e8);
-}
-
-.room-tab.active {
-    background: var(--accent-terracotta, #E2725B);
-    color: white;
-}
-
-.tab-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-/* ===== СТАТИСТИКА ===== */
+/* ---------- СТАТИСТИКА ---------- */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -1017,7 +1002,7 @@ body {
 }
 
 .stat-card {
-    background: var(--bg-cream, #f5f0e8);
+    background: var(--bg-bg);
     border-radius: 12px;
     padding: 20px;
     text-align: center;
@@ -1026,22 +1011,33 @@ body {
 .stat-value {
     font-size: 32px;
     font-weight: bold;
-    color: var(--text-dark, #2C2C2C);
+    color: var(--text-primary);
 }
 
 .stat-label {
     font-size: 13px;
-    color: var(--text-gray, #666);
+    color: var(--text-secondary);
     margin-top: 8px;
 }
 
-.stat-card.stat-done .stat-value { color: #4CAF50; }
-.stat-card.stat-failed .stat-value { color: #F44336; }
-.stat-card.stat-pending .stat-value { color: #FF9800; }
-.stat-card.stat-overdue .stat-value { color: #F44336; }
+.stat-card.stat-done .stat-value {
+    color: var(--status-success);
+}
+
+.stat-card.stat-failed .stat-value {
+    color: var(--status-error);
+}
+
+.stat-card.stat-pending .stat-value {
+    color: var(--status-warning);
+}
+
+.stat-card.stat-overdue .stat-value {
+    color: var(--status-error);
+}
 
 .stats-progress {
-    background: var(--bg-cream, #f5f0e8);
+    background: var(--bg-bg);
     border-radius: 12px;
     padding: 20px;
     margin-bottom: 24px;
@@ -1053,14 +1049,14 @@ body {
 }
 
 .progress-bar {
-    background: #e0e0e0;
+    background: var(--border-light);
     border-radius: 10px;
     height: 12px;
     overflow: hidden;
 }
 
 .progress-fill {
-    background: var(--accent-terracotta, #E2725B);
+    background: var(--accent-primary);
     height: 100%;
     border-radius: 10px;
     transition: width 0.3s;
@@ -1074,7 +1070,7 @@ body {
 }
 
 .stats-employees {
-    background: var(--bg-cream, #f5f0e8);
+    background: var(--bg-bg);
     border-radius: 12px;
     padding: 20px;
 }
@@ -1090,7 +1086,7 @@ body {
 }
 
 .employee-stat-item {
-    border-bottom: 1px solid var(--border-light, #e0e0e0);
+    border-bottom: 1px solid var(--border-light);
     padding-bottom: 12px;
 }
 
@@ -1108,9 +1104,17 @@ body {
     margin-bottom: 8px;
 }
 
-.employee-stat-bar.done { background: #4CAF50; }
-.employee-stat-bar.failed { background: #F44336; }
-.employee-stat-bar.pending { background: #FF9800; }
+.employee-stat-bar.done {
+    background: var(--status-success);
+}
+
+.employee-stat-bar.failed {
+    background: var(--status-error);
+}
+
+.employee-stat-bar.pending {
+    background: var(--status-warning);
+}
 
 .employee-stat-numbers {
     display: flex;
@@ -1118,66 +1122,47 @@ body {
     font-size: 12px;
 }
 
-.employee-stat-numbers .done { color: #4CAF50; }
-.employee-stat-numbers .failed { color: #F44336; }
-.employee-stat-numbers .pending { color: #FF9800; }
-
-/* ===== ГЛОБАЛЬНЫЙ СТЕК ===== */
-.global-employees-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+.employee-stat-numbers .done {
+    color: var(--status-success);
 }
 
-.global-employee-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px;
-    background: var(--bg-white, white);
-    border: 1px solid var(--border-light, #e0e0e0);
-    border-radius: 8px;
+.employee-stat-numbers .failed {
+    color: var(--status-error);
 }
 
-.global-employee-actions {
-    display: flex;
-    gap: 8px;
+.employee-stat-numbers .pending {
+    color: var(--status-warning);
 }
 
-.global-employee-use-btn {
-    background: var(--accent-terracotta, #E2725B);
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* ===== ШАБЛОНЫ ===== */
+/* ---------- ГЛОБАЛЬНЫЙ СТЕК И ШАБЛОНЫ ---------- */
+.global-employees-list,
 .templates-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
 
+.global-employee-item,
 .template-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background: var(--bg-white, white);
-    border: 1px solid var(--border-light, #e0e0e0);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-light);
     border-radius: 8px;
 }
 
+.global-employee-actions,
 .template-actions {
     display: flex;
     gap: 8px;
 }
 
+.global-employee-use-btn,
 .template-use-btn {
-    background: var(--accent-terracotta, #E2725B);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-inverse);
     border: none;
     padding: 6px 12px;
     border-radius: 6px;
@@ -1185,17 +1170,23 @@ body {
 }
 
 .template-delete-btn {
-    background: #FEE;
-    color: #c00;
+    background: rgba(244, 67, 54, 0.15);
+    color: var(--status-error);
     border: none;
     padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
+    transition: background 0.2s;
 }
 
+.template-delete-btn:hover {
+    background: rgba(244, 67, 54, 0.3);
+}
+
+/* ---------- БЫСТРЫЙ ВЫБОР ДЕДЛАЙНА ---------- */
 .quick-deadline-btn {
-    background: var(--bg-cream, #f5f0e8);
-    border: 1px solid var(--border-light, #e0e0e0);
+    background: var(--bg-bg);
+    border: 1px solid var(--border-light);
     padding: 6px 12px;
     border-radius: 20px;
     cursor: pointer;
@@ -1204,12 +1195,237 @@ body {
 }
 
 .quick-deadline-btn:hover {
-    background: var(--accent-terracotta, #E2725B);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-inverse);
 }
 
 .quick-deadline-btn.active {
-    background: var(--accent-terracotta, #E2725B);
-    color: white;
+    background: var(--accent-primary);
+    color: var(--text-inverse);
 }
 
+/* ---------- ПУСТЫЕ СОСТОЯНИЯ И ЗАГРУЗКА ---------- */
+.empty-card {
+    text-align: center;
+    padding: 40px 20px;
+    background: var(--bg-bg);
+    border-radius: 12px;
+    color: var(--text-tertiary);
+}
+
+.empty-small {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-tertiary);
+    font-size: 13px;
+}
+
+.loading-spinner {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-tertiary);
+}
+
+/* ---------- СТРАНИЦА СОТРУДНИКА ---------- */
+.employee-body {
+    background: var(--bg-bg);
+    min-height: 100vh;
+}
+
+.employee-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.employee-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-surface);
+    border-radius: 16px;
+    margin-bottom: 24px;
+    padding: 16px 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-light);
+}
+
+.employee-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.employee-name-badge {
+    font-weight: 600;
+    color: var(--text-primary);
+    background: var(--bg-bg);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.btn-icon-small {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.btn-icon-small:hover {
+    background: var(--bg-hover);
+}
+
+.employee-title {
+    font-size: 24px;
+    color: var(--text-primary);
+    margin-bottom: 24px;
+}
+
+.employee-task-card {
+    background: var(--bg-surface);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s;
+    border-left: 4px solid var(--accent-primary);
+    margin-bottom: 5px;
+}
+
+.employee-task-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 5px;
+}
+
+.employee-task-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.employee-task-desc {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 12px;
+}
+
+.employee-task-meta {
+    margin-bottom: 16px;
+}
+
+.task-deadline {
+    font-size: 13px;
+    color: var(--text-tertiary);
+}
+
+.employee-task-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.employee-task-actions .task-done-btn,
+.employee-task-actions .task-fail-btn {
+    padding: 8px 20px;
+    font-size: 14px;
+}
+
+.employee-completed-section {
+    background: var(--bg-bg-card);
+    border-radius: 16px;
+    padding: 16px;
+    margin-top: 16px;
+}
+
+.employee-completed-summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--status-success);
+    padding: 8px;
+    font-size: 16px;
+}
+
+.employee-completed-list {
+    margin-top: 12px;
+}
+
+.employee-completed-item {
+    padding: 12px;
+    border-bottom: 1px solid #FB4A05;
+}
+
+.employee-completed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.employee-completed-title {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.employee-completed-date {
+    font-size: 12px;
+    color: var(--text-tertiary);
+}
+
+.failed-reason {
+    font-size: 12px;
+    color: var(--status-error);
+    margin-top: 6px;
+    padding-left: 20px;
+}
+
+.employee-footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 24px;
+    color: var(--text-tertiary);
+    font-size: 12px;
+}
+
+/* ---------- АДАПТИВНОСТЬ ---------- */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 32px;
+    }
+    
+    .subtitle {
+        font-size: 18px;
+    }
+    
+    .features h2 {
+        font-size: 28px;
+    }
+    
+    .modal-content {
+        padding: 30px 20px;
+    }
+    
+    .admin-sidebar {
+        width: 240px;
+    }
+    
+    .admin-main {
+        margin-left: 240px;
+        padding: 20px;
+    }
+    
+    .room-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .room-tabs {
+        flex-wrap: wrap;
+    }
+}

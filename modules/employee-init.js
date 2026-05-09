@@ -8,7 +8,8 @@ import {
     getFirestore, collection, query, where, onSnapshot, 
     updateDoc, doc, getDoc 
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-import { showMessage } from './ui-notifications.js';
+import { showMessage, showFormModal } from './ui-notifications.js';
+import { showToast } from './toast.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyCz0vGpRTOJxxiLzQU93PN34pvYhuUpxno",
@@ -33,6 +34,27 @@ if (!roomId || !employeeId) {
 
 let currentEmployeeName = null;
 
+// ========== ТЕМНАЯ ТЕМА ==========
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+        document.body.classList.add('dark-theme');
+    }
+}
+
+function toggleTheme() {
+    if (document.body.classList.contains('dark-theme')) {
+        document.body.classList.remove('dark-theme');
+        localStorage.setItem('theme', 'light');
+        showToast('🌞 Светлая тема', 'info');
+    } else {
+        document.body.classList.add('dark-theme');
+        localStorage.setItem('theme', 'dark');
+        showToast('🌙 Тёмная тема', 'info');
+    }
+}
+
+// ========== ЗАГРУЗКА ИМЕНИ ==========
 async function loadEmployeeName() {
     try {
         const employeeRef = doc(db, 'rooms', roomId, 'employees', employeeId);
@@ -48,9 +70,10 @@ async function loadEmployeeName() {
     document.getElementById('employeeNameDisplay').textContent = currentEmployeeName;
 }
 
+// ========== СОХРАНЕНИЕ ИМЕНИ ==========
 async function saveEmployeeName(newName) {
     if (!newName.trim()) {
-        await showMessage('Ошибка', 'Имя не может быть пустым', 'error');
+        showToast('❌ Имя не может быть пустым', 'error');
         return false;
     }
     currentEmployeeName = newName.trim();
@@ -62,10 +85,11 @@ async function saveEmployeeName(newName) {
             lastSeen: new Date()
         });
     } catch (e) {}
-    await showMessage('Успех', 'Имя обновлено', 'success');
+    showToast('✅ Имя обновлено', 'success');
     return true;
 }
 
+// ========== АКТИВНЫЕ ЗАДАЧИ ==========
 function loadActiveTasks() {
     const container = document.getElementById('activeTasksContainer');
     if (!container) return;
@@ -110,6 +134,7 @@ function loadActiveTasks() {
             taskCard.innerHTML = `
                 <div class="employee-task-header">
                     <span class="employee-task-title">📌 ${escapeHtml(task.title)}</span>
+                    <button class="task-edit-status-btn" data-id="${task.id}" data-status="${task.status}" style="background:none;border:none;cursor:pointer;font-size:16px;">✏️</button>
                 </div>
                 ${task.description ? `<div class="employee-task-desc">${escapeHtml(task.description)}</div>` : ''}
                 <div class="employee-task-meta">${deadlineHtml}</div>
@@ -119,16 +144,54 @@ function loadActiveTasks() {
                 </div>
             `;
             
+            // Кнопка редактирования статуса
+            const editStatusBtn = taskCard.querySelector('.task-edit-status-btn');
+            if (editStatusBtn) {
+                editStatusBtn.onclick = async () => {
+                    const result = await showFormModal('Изменить статус задачи', [
+                        { 
+                            name: 'newStatus', 
+                            label: 'Новый статус', 
+                            type: 'select', 
+                            options: [
+                                { id: 'pending', name: '⏳ В работе' },
+                                { id: 'done', name: '✅ Выполнено' },
+                                { id: 'failed', name: '❌ Провалено' }
+                            ],
+                            value: task.status
+                        },
+                        { 
+                            name: 'reason', 
+                            label: 'Причина (если провалено)', 
+                            type: 'textarea', 
+                            placeholder: 'Укажите причину...',
+                            required: false
+                        }
+                    ], 'Сохранить');
+                    
+                    if (result) {
+                        const newStatus = result.newStatus;
+                        const reason = newStatus === 'failed' ? result.reason : '';
+                        await updateTaskStatus(task.id, newStatus, reason);
+                    }
+                };
+            }
+            
             taskCard.querySelector('.task-done-btn').onclick = () => updateTaskStatus(task.id, 'done');
             taskCard.querySelector('.task-fail-btn').onclick = async () => {
-                const reason = prompt('Причина отказа:');
-                if (reason?.trim()) updateTaskStatus(task.id, 'failed', reason.trim());
+                const result = await showFormModal('Причина отказа', [
+                    { name: 'reason', label: 'Укажите причину', type: 'textarea', placeholder: 'Почему задача не выполнена?' }
+                ], 'Отправить');
+                if (result?.reason?.trim()) {
+                    updateTaskStatus(task.id, 'failed', result.reason.trim());
+                }
             };
             container.appendChild(taskCard);
         }
     });
 }
 
+// ========== ВЫПОЛНЕННЫЕ ЗАДАЧИ ==========
 function loadCompletedTasks() {
     const container = document.getElementById('completedTasksContainer');
     if (!container) return;
@@ -163,32 +226,51 @@ function loadCompletedTasks() {
                     <span class="employee-completed-date">${deadlineStr}</span>
                 </div>
                 ${failedReason}
+                <button class="restore-task-btn" data-id="${task.id}" style="background:none;border:none;cursor:pointer;font-size:12px;color:var(--accent-primary);margin-top:8px;">↩️ Вернуть в работу</button>
             `;
+            
+            const restoreBtn = taskItem.querySelector('.restore-task-btn');
+            if (restoreBtn) {
+                restoreBtn.onclick = () => updateTaskStatus(task.id, 'pending');
+            }
+            
             container.appendChild(taskItem);
         });
     });
 }
 
+// ========== ОБНОВЛЕНИЕ СТАТУСА ==========
 async function updateTaskStatus(taskId, newStatus, reason = '') {
     try {
         const updateData = { status: newStatus, updatedAt: new Date() };
         if (newStatus === 'failed' && reason) updateData.failedReason = reason;
         if (newStatus === 'done') updateData.completedAt = new Date();
+        if (newStatus === 'pending') {
+            updateData.failedReason = null;
+            updateData.completedAt = null;
+        }
         await updateDoc(doc(db, 'rooms', roomId, 'tasks', taskId), updateData);
-        await showMessage('Успех', `Задача ${newStatus === 'done' ? 'выполнена' : 'отмечена'}`, 'success');
+        
+        let message = '';
+        if (newStatus === 'done') message = '✅ Задача выполнена';
+        else if (newStatus === 'failed') message = '❌ Задача отмечена как проваленная';
+        else if (newStatus === 'pending') message = '↩️ Задача возвращена в работу';
+        
+        showToast(message, 'success');
         loadActiveTasks();
         loadCompletedTasks();
     } catch (error) {
-        await showMessage('Ошибка', error.message, 'error');
+        showToast('❌ Ошибка: ' + error.message, 'error');
     }
 }
 
+// ========== ВСПОМОГАТЕЛЬНЫЕ ==========
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
 }
 
-// Модалка смены имени
+// ========== МОДАЛКА СМЕНЫ ИМЕНИ ==========
 const changeNameBtn = document.getElementById('changeNameBtn');
 const changeNameModal = document.getElementById('changeNameModal');
 const closeNameModal = changeNameModal?.querySelector('.modal-close-name');
@@ -214,7 +296,15 @@ window.onclick = (e) => {
     if (e.target === changeNameModal) changeNameModal.style.display = 'none';
 };
 
+// ========== КНОПКА ТЕМНОЙ ТЕМЫ ==========
+const themeToggleBtn = document.getElementById('themeToggleBtn');
+if (themeToggleBtn) {
+    themeToggleBtn.onclick = toggleTheme;
+}
+
+// ========== ЗАПУСК ==========
 async function init() {
+    initTheme();
     await loadEmployeeName();
     loadActiveTasks();
     loadCompletedTasks();

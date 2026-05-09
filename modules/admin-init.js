@@ -1,28 +1,22 @@
 /**
  * admin-init.js
- * Админ-панель для управления задачами и командой
+ * Админ-панель
  */
 
-// ========== ИМПОРТЫ ==========
 import { auth, logout } from './auth.js';
 import { db } from './firebase-init.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { 
     collection, addDoc, deleteDoc, doc, query, where, 
-    onSnapshot, updateDoc, getDocs, getDoc   // ← добавить getDoc
+    onSnapshot, updateDoc, getDocs, getDoc
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { showMessage, showConfirm, showFormModal } from './ui-notifications.js';
 import { initGlobalEmployees, addGlobalEmployee } from './global-employees.js';
 import { initTaskTemplates, createTemplate } from './task-templates.js';
-import { notifyNewTask } from './telegram.js'; 
 
-
-// ========== ПЕРЕМЕННЫЕ ==========
 let currentRoomId = null;
 let currentRoomName = null;
-let notifiedTasks = new Set();
 
-// ========== ПРОВЕРКА АВТОРИЗАЦИИ ==========
 onAuthStateChanged(auth, (user) => {
     if (!user) {
         window.location.href = 'index.html';
@@ -33,7 +27,6 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// ========== ЗАГРУЗКА КОМНАТ ==========
 function loadRooms() {
     const user = auth.currentUser;
     if (!user) return;
@@ -62,7 +55,6 @@ function loadRooms() {
     });
 }
 
-// ========== СОЗДАНИЕ КОМНАТЫ ==========
 async function createRoom(name) {
     const user = auth.currentUser;
     if (!user || !name?.trim()) return false;
@@ -76,41 +68,11 @@ async function createRoom(name) {
         await showMessage('Успех', '✅ Комната создана', 'success');
         return true;
     } catch (error) {
-        await showMessage('Ошибка', '❌ Ошибка: ' + error.message, 'error');
+        await showMessage('Ошибка', error.message, 'error');
         return false;
     }
 }
 
-// ========== БЫСТРЫЙ ВЫБОР ДЕДЛАЙНА ==========
-function initQuickDeadlineButtons() {
-    const quickBtns = document.querySelectorAll('.quick-deadline-btn');
-    const deadlineInput = document.getElementById('taskDeadlineInput');
-    
-    if (!deadlineInput) return;
-    
-    quickBtns.forEach(btn => {
-        btn.onclick = () => {
-            const hours = btn.dataset.hours;
-            const isCustom = btn.dataset.custom === 'true';
-            
-            if (isCustom) {
-                deadlineInput.style.display = 'block';
-                deadlineInput.value = '';
-                deadlineInput.focus();
-                quickBtns.forEach(b => b.classList.remove('active'));
-            } else if (hours) {
-                deadlineInput.style.display = 'block';
-                const date = new Date();
-                date.setTime(date.getTime() + (parseInt(hours) * 60 * 60 * 1000));
-                deadlineInput.value = date.toISOString().slice(0, 16);
-                quickBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-            }
-        };
-    });
-}
-
-// ========== ГЛАВНАЯ СТРАНИЦА КОМНАТЫ ==========
 async function selectRoom(roomId, roomName) {
     currentRoomId = roomId;
     currentRoomName = roomName;
@@ -120,16 +82,14 @@ async function selectRoom(roomId, roomName) {
     if (!roomContent) return;
     
     roomContent.innerHTML = `
-        <!-- Шапка комнаты -->
         <div class="room-header">
             <div>
                 <h1 class="room-title">📁 ${escapeHtml(roomName)}</h1>
-                <p class="room-subtitle">Управление задачами и командой</p>
+                <p class="room-subtitle">Управление задачами</p>
             </div>
             <button id="addTaskGlobalBtn" class="btn-primary">➕ Новая задача</button>
         </div>
         
-        <!-- Модалка создания задачи -->
         <div id="taskModal" class="modal-task" style="display: none;">
             <div class="modal-task-content" style="max-width: 600px;">
                 <div class="modal-task-header">
@@ -138,9 +98,8 @@ async function selectRoom(roomId, roomName) {
                 </div>
                 <div class="modal-task-body">
                     <input type="text" id="taskTitleInput" placeholder="Название задачи *" class="task-input">
-                    <textarea id="taskDescInput" placeholder="Описание (необязательно)" rows="3" class="task-textarea"></textarea>
-                    
-                    <label style="display: block; margin-bottom: 8px; font-size: 13px; color: var(--text-gray, #666);">⏰ Дедлайн</label>
+                    <textarea id="taskDescInput" placeholder="Описание" rows="3" class="task-textarea"></textarea>
+                    <label>⏰ Дедлайн</label>
                     <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
                         <button type="button" class="quick-deadline-btn" data-hours="6">6 часов</button>
                         <button type="button" class="quick-deadline-btn" data-hours="24">1 день</button>
@@ -149,24 +108,21 @@ async function selectRoom(roomId, roomName) {
                         <button type="button" class="quick-deadline-btn" data-custom="true">Кастомный</button>
                     </div>
                     <input type="datetime-local" id="taskDeadlineInput" class="task-input" style="display: none;">
-                    
                     <select id="taskAssigneeSelect" class="task-select">
                         <option value="">Выберите сотрудника</option>
                     </select>
-                    <button id="createTaskBtn" class="btn-primary btn-block">✅ Создать задачу</button>
+                    <button id="createTaskBtn" class="btn-primary btn-block">✅ Создать</button>
                 </div>
             </div>
         </div>
         
-        <!-- Вкладки -->
         <div class="room-tabs">
             <button class="room-tab active" data-tab="tasks">📋 Задачи</button>
+            <button class="room-tab" data-tab="statistics">📊 Статистика</button>
             <button class="room-tab" data-tab="global">🌍 Общий стек</button>
             <button class="room-tab" data-tab="templates">📝 Шаблоны</button>
-            <button class="room-tab" data-tab="statistics">📊 Статистика</button>
         </div>
         
-        <!-- Контент вкладки Задачи -->
         <div id="tab-tasks" class="tab-content active">
             <div class="room-two-columns">
                 <div class="column-employees">
@@ -186,43 +142,33 @@ async function selectRoom(roomId, roomName) {
                         <div class="loading-spinner">Загрузка...</div>
                     </div>
                     <details class="completed-section">
-                        <summary class="completed-summary">✅ Выполненные задачи</summary>
+                        <summary class="completed-summary">✅ Выполненные</summary>
                         <div id="completedTasksContainer" class="completed-tasks-list"></div>
                     </details>
                 </div>
             </div>
         </div>
         
-        <!-- Контент вкладки Общий стек -->
         <div id="tab-global" class="tab-content" style="display: none;">
             <div class="tab-header">
-                <h3>🌍 Общий стек сотрудников</h3>
-                <button id="addGlobalEmployeeBtn" class="btn-primary">+ Добавить в стек</button>
+                <h3>🌍 Общий стек</h3>
+                <button id="addGlobalEmployeeBtn" class="btn-primary">+ Добавить</button>
             </div>
-            <div id="globalEmployeesList" class="global-employees-list">
-                <div class="loading-spinner">Загрузка...</div>
-            </div>
+            <div id="globalEmployeesList" class="global-employees-list"></div>
         </div>
         
-        <!-- Контент вкладки Шаблоны -->
         <div id="tab-templates" class="tab-content" style="display: none;">
             <div class="tab-header">
                 <h3>📝 Шаблоны задач</h3>
                 <button id="createTemplateBtn" class="btn-primary">+ Новый шаблон</button>
             </div>
-            <div id="taskTemplatesList" class="templates-list">
-                <div class="loading-spinner">Загрузка...</div>
-            </div>
+            <div id="taskTemplatesList" class="templates-list"></div>
         </div>
         
-        <!-- Контент вкладки Статистика -->
         <div id="tab-statistics" class="tab-content" style="display: none;">
-            <div id="statisticsContainer">
-                <div class="loading-spinner">Загрузка статистики...</div>
-            </div>
+            <div id="statisticsContainer"></div>
         </div>
         
-        <!-- Модалка добавления сотрудника -->
         <div id="employeeModal" class="modal-task" style="display: none;">
             <div class="modal-task-content">
                 <div class="modal-task-header">
@@ -230,151 +176,91 @@ async function selectRoom(roomId, roomName) {
                     <span class="modal-close-employee">&times;</span>
                 </div>
                 <div class="modal-task-body">
-                    <input type="text" id="employeeNameInput" placeholder="Имя сотрудника *" class="task-input">
-                    <input type="text" id="employeeTelegramInput" placeholder="Telegram (опционально)" class="task-input">
+                    <input type="text" id="employeeNameInput" placeholder="Имя" class="task-input">
+                    <input type="text" id="employeeTelegramInput" placeholder="Telegram (username)" class="task-input">
                     <button id="saveEmployeeBtn" class="btn-primary btn-block">➕ Добавить</button>
                 </div>
             </div>
         </div>
     `;
     
-    // Загружаем данные
-    loadEmployeesCards();
+    loadEmployees();
     loadActiveTasks();
     loadCompletedTasks();
     loadEmployeesForSelect();
     initQuickDeadlineButtons();
     
-    // ========== НАСТРОЙКА КНОПОК ==========
+    // Кнопки
+    document.getElementById('addTaskGlobalBtn').onclick = () => document.getElementById('taskModal').style.display = 'flex';
+    document.querySelector('.modal-close-task').onclick = () => document.getElementById('taskModal').style.display = 'none';
     
-    // Кнопка "Новая задача"
-    const addTaskGlobalBtn = document.getElementById('addTaskGlobalBtn');
-    const taskModal = document.getElementById('taskModal');
-    const closeTaskModal = document.querySelector('.modal-close-task');
+    document.getElementById('addEmployeeBtn').onclick = () => document.getElementById('employeeModal').style.display = 'flex';
+    document.querySelector('.modal-close-employee').onclick = () => document.getElementById('employeeModal').style.display = 'none';
     
-    if (addTaskGlobalBtn) addTaskGlobalBtn.onclick = () => taskModal.style.display = 'flex';
-    if (closeTaskModal) closeTaskModal.onclick = () => taskModal.style.display = 'none';
-    
-    // Кнопка добавления сотрудника
-    const addEmployeeBtn = document.getElementById('addEmployeeBtn');
-    const employeeModal = document.getElementById('employeeModal');
-    const closeEmployeeModal = document.querySelector('.modal-close-employee');
-    const saveEmployeeBtn = document.getElementById('saveEmployeeBtn');
-    
-    if (addEmployeeBtn) addEmployeeBtn.onclick = () => employeeModal.style.display = 'flex';
-    if (closeEmployeeModal) closeEmployeeModal.onclick = () => employeeModal.style.display = 'none';
-    
-    if (saveEmployeeBtn) {
-        saveEmployeeBtn.onclick = async () => {
-            const name = document.getElementById('employeeNameInput').value;
-            const telegram = document.getElementById('employeeTelegramInput').value;
-            if (!name.trim()) {
-                await showMessage('Ошибка', 'Введите имя', 'error');
-                return;
-            }
-            await addEmployeeToRoom(name, telegram);
-            employeeModal.style.display = 'none';
-            document.getElementById('employeeNameInput').value = '';
-            document.getElementById('employeeTelegramInput').value = '';
-            loadEmployeesCards();
-            loadEmployeesForSelect();
-        };
-    }
-    
-    // Создание задачи
-    const createTaskBtn = document.getElementById('createTaskBtn');
-    if (createTaskBtn) {
-        createTaskBtn.onclick = async () => {
-            const title = document.getElementById('taskTitleInput').value;
-            const description = document.getElementById('taskDescInput').value;
-            const deadline = document.getElementById('taskDeadlineInput').value;
-            const assigneeId = document.getElementById('taskAssigneeSelect').value;
-            
-            if (!title.trim()) {
-                await showMessage('Ошибка', 'Введите название задачи', 'error');
-                return;
-            }
-            if (!assigneeId) {
-                await showMessage('Ошибка', 'Выберите сотрудника', 'error');
-                return;
-            }
-            
-            await createTask(title, description, deadline, assigneeId);
-            taskModal.style.display = 'none';
-            document.getElementById('taskTitleInput').value = '';
-            document.getElementById('taskDescInput').value = '';
-            document.getElementById('taskDeadlineInput').value = '';
-            loadActiveTasks();
-            loadCompletedTasks();
-            loadEmployeesCards();
-        };
-    }
-    
-    // Закрытие модалок по клику вне
-    window.onclick = (e) => {
-        if (e.target === taskModal) taskModal.style.display = 'none';
-        if (e.target === employeeModal) employeeModal.style.display = 'none';
+    document.getElementById('saveEmployeeBtn').onclick = async () => {
+        const name = document.getElementById('employeeNameInput').value;
+        const telegram = document.getElementById('employeeTelegramInput').value;
+        if (!name.trim()) return showMessage('Ошибка', 'Введите имя', 'error');
+        await addEmployee(name, telegram);
+        document.getElementById('employeeModal').style.display = 'none';
+        document.getElementById('employeeNameInput').value = '';
+        document.getElementById('employeeTelegramInput').value = '';
+        loadEmployees();
+        loadEmployeesForSelect();
     };
     
-    // ========== ПЕРЕКЛЮЧЕНИЕ ВКЛАДОК ==========
-    const tabs = document.querySelectorAll('.room-tab');
-    const contentsIds = ['tasks', 'global', 'templates', 'statistics'];
+    document.getElementById('createTaskBtn').onclick = async () => {
+        const title = document.getElementById('taskTitleInput').value;
+        const desc = document.getElementById('taskDescInput').value;
+        const deadline = document.getElementById('taskDeadlineInput').value;
+        const assigneeId = document.getElementById('taskAssigneeSelect').value;
+        if (!title.trim()) return showMessage('Ошибка', 'Введите название', 'error');
+        if (!assigneeId) return showMessage('Ошибка', 'Выберите сотрудника', 'error');
+        await createTask(title, desc, deadline, assigneeId);
+        document.getElementById('taskModal').style.display = 'none';
+        document.getElementById('taskTitleInput').value = '';
+        document.getElementById('taskDescInput').value = '';
+        document.getElementById('taskDeadlineInput').value = '';
+        loadActiveTasks();
+        loadCompletedTasks();
+        loadEmployees();
+    };
     
+    // Вкладки
+    const tabs = document.querySelectorAll('.room-tab');
     tabs.forEach(tab => {
         tab.onclick = () => {
             const tabName = tab.dataset.tab;
-            
-            contentsIds.forEach(id => {
+            ['tasks', 'global', 'templates', 'statistics'].forEach(id => {
                 const el = document.getElementById(`tab-${id}`);
                 if (el) el.style.display = 'none';
             });
-            
             const activeTab = document.getElementById(`tab-${tabName}`);
             if (activeTab) activeTab.style.display = 'block';
-            
             tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
             if (tabName === 'statistics') {
-                import('./statistics.js').then(module => {
-                    module.setCurrentRoomForStats(currentRoomId);
-                    module.loadStatistics();
-                }).catch(err => {
-                    console.error('Ошибка загрузки статистики:', err);
-                    const statsContainer = document.getElementById('statisticsContainer');
-                    if (statsContainer) {
-                        statsContainer.innerHTML = '<div class="empty-card">Ошибка загрузки модуля статистики</div>';
-                    }
+                import('./statistics.js').then(m => {
+                    m.setCurrentRoomForStats(currentRoomId);
+                    m.loadStatistics();
                 });
             }
         };
     });
     
-    // Кнопка добавления в глобальный стек
-    const addGlobalEmployeeBtn = document.getElementById('addGlobalEmployeeBtn');
-    if (addGlobalEmployeeBtn) {
-        addGlobalEmployeeBtn.onclick = async () => {
-            const result = await showFormModal('Добавить в общий стек', [
-                { name: 'name', label: 'Имя сотрудника', type: 'text', placeholder: 'Иван Иванов' },
-                { name: 'telegram', label: 'Telegram', type: 'text', placeholder: '@ivan' }
-            ], 'Добавить');
-            if (result && result.name) {
-                await addGlobalEmployee(result.name, result.telegram);
-            }
-        };
-    }
+    document.getElementById('addGlobalEmployeeBtn').onclick = async () => {
+        const result = await showFormModal('Добавить в общий стек', [
+            { name: 'name', label: 'Имя', type: 'text' },
+            { name: 'telegram', label: 'Telegram', type: 'text' }
+        ], 'Добавить');
+        if (result?.name) await addGlobalEmployee(result.name, result.telegram);
+    };
     
-    // Кнопка создания шаблона
-    const createTemplateBtn = document.getElementById('createTemplateBtn');
-    if (createTemplateBtn) {
-        createTemplateBtn.onclick = () => createTemplate();
-    }
+    document.getElementById('createTemplateBtn').onclick = () => createTemplate();
 }
 
-// ========== КАРТОЧКИ СОТРУДНИКОВ ==========
-function loadEmployeesCards() {
+function loadEmployees() {
     if (!currentRoomId) return;
-    
     const container = document.getElementById('employeesContainer');
     if (!container) return;
     
@@ -382,7 +268,7 @@ function loadEmployeesCards() {
     
     onSnapshot(q, async (snapshot) => {
         if (snapshot.empty) {
-            container.innerHTML = '<div class="empty-card">👥 Нет сотрудников<br><small>Нажмите «+ Добавить»</small></div>';
+            container.innerHTML = '<div class="empty-card">👥 Нет сотрудников</div>';
             return;
         }
         
@@ -417,18 +303,40 @@ function loadEmployeesCards() {
                 </div>
             `;
             
-            card.querySelector('.employee-edit-btn').onclick = () => editEmployee(empId, emp.name, emp.telegram);
+            card.querySelector('.employee-edit-btn').onclick = () => editEmployee(empId, emp.name, emp.telegram, emp.telegramId);
             card.querySelector('.employee-link-btn').onclick = () => showEmployeeLink(empId, emp.name);
-            card.querySelector('.employee-delete-btn').onclick = () => deleteEmployeeFromRoom(empId);
+            card.querySelector('.employee-delete-btn').onclick = () => deleteEmployee(empId);
             container.appendChild(card);
         }
     });
 }
 
-// ========== АКТИВНЫЕ ЗАДАЧИ ==========
+function initQuickDeadlineButtons() {
+    const btns = document.querySelectorAll('.quick-deadline-btn');
+    const input = document.getElementById('taskDeadlineInput');
+    if (!input) return;
+    btns.forEach(btn => {
+        btn.onclick = () => {
+            const hours = btn.dataset.hours;
+            const isCustom = btn.dataset.custom === 'true';
+            if (isCustom) {
+                input.style.display = 'block';
+                input.value = '';
+                btns.forEach(b => b.classList.remove('active'));
+            } else if (hours) {
+                input.style.display = 'block';
+                const date = new Date();
+                date.setTime(date.getTime() + parseInt(hours) * 60 * 60 * 1000);
+                input.value = date.toISOString().slice(0, 16);
+                btns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            }
+        };
+    });
+}
+
 function loadActiveTasks() {
     if (!currentRoomId) return;
-    
     const container = document.getElementById('activeTasksContainer');
     if (!container) return;
     
@@ -437,44 +345,35 @@ function loadActiveTasks() {
     onSnapshot(q, async (snapshot) => {
         const employeesSnap = await getDocs(collection(db, 'rooms', currentRoomId, 'employees'));
         const employeeNames = {};
-        employeesSnap.forEach(doc => {
-            employeeNames[doc.id] = doc.data().name;
-        });
+        employeesSnap.forEach(doc => { employeeNames[doc.id] = doc.data().name; });
         
         const activeTasks = [];
         snapshot.forEach(doc => {
             const task = doc.data();
-            if (task.status === 'pending') {
-                activeTasks.push({ id: doc.id, ...task });
-            }
+            if (task.status === 'pending') activeTasks.push({ id: doc.id, ...task });
         });
         
         if (activeTasks.length === 0) {
-            container.innerHTML = '<div class="empty-card">📭 Нет активных задач<br><small>Нажмите «Новая задача»</small></div>';
+            container.innerHTML = '<div class="empty-card">📭 Нет активных задач</div>';
             return;
         }
         
         container.innerHTML = '';
         activeTasks.forEach(task => {
-            const taskCard = document.createElement('div');
-            taskCard.className = 'task-card';
-            
+            const card = document.createElement('div');
+            card.className = 'task-card';
             const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleDateString() : 'без дедлайна';
             const employeeName = employeeNames[task.assigneeId] || 'Неизвестный';
-            const isDeadlineSoon = task.deadline && new Date(task.deadline) < new Date(Date.now() + 24*60*60*1000);
+            const isSoon = task.deadline && new Date(task.deadline) < new Date(Date.now() + 24*60*60*1000);
             const isOverdue = task.deadline && new Date(task.deadline) < new Date();
-            
             let deadlineClass = '';
             if (isOverdue) deadlineClass = 'overdue';
-            else if (isDeadlineSoon) deadlineClass = 'soon';
+            else if (isSoon) deadlineClass = 'soon';
             
-            taskCard.innerHTML = `
+            card.innerHTML = `
                 <div class="task-card-header">
                     <span class="task-title">📌 ${escapeHtml(task.title)}</span>
-                    <div style="display: flex; gap: 8px;">
-                        ${isDeadlineSoon ? '<span class="task-urgent">⚠️ Скоро</span>' : ''}
-                        <button class="task-edit-btn" data-id="${task.id}" style="background: none; border: none; cursor: pointer; font-size: 16px;" title="Редактировать">✏️</button>
-                    </div>
+                    <div><button class="task-edit-btn" data-id="${task.id}" style="background:none;border:none;cursor:pointer;">✏️</button></div>
                 </div>
                 ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
                 <div class="task-meta">
@@ -487,25 +386,21 @@ function loadActiveTasks() {
                 </div>
             `;
             
-            taskCard.querySelector('.task-edit-btn').onclick = () => editTask(task.id, task.title, task.description, task.deadline, task.assigneeId);
-            taskCard.querySelector('.task-done-btn').onclick = () => updateTaskStatus(task.id, 'done');
-            taskCard.querySelector('.task-fail-btn').onclick = async () => {
+            card.querySelector('.task-edit-btn').onclick = () => editTask(task.id, task.title, task.description, task.deadline, task.assigneeId);
+            card.querySelector('.task-done-btn').onclick = () => updateTaskStatus(task.id, 'done');
+            card.querySelector('.task-fail-btn').onclick = async () => {
                 const reason = await showFormModal('Причина отказа', [
-                    { name: 'reason', label: 'Укажите причину', type: 'textarea', placeholder: 'Почему задача не выполнена?' }
+                    { name: 'reason', label: 'Причина', type: 'textarea' }
                 ], 'Отправить');
-                if (reason && reason.reason) updateTaskStatus(task.id, 'failed', reason.reason);
+                if (reason?.reason) updateTaskStatus(task.id, 'failed', reason.reason);
             };
-            container.appendChild(taskCard);
+            container.appendChild(card);
         });
-        
-        checkDeadlinesAndNotify(activeTasks);
     });
 }
 
-// ========== ВЫПОЛНЕННЫЕ ЗАДАЧИ ==========
 function loadCompletedTasks() {
     if (!currentRoomId) return;
-    
     const container = document.getElementById('completedTasksContainer');
     if (!container) return;
     
@@ -514,38 +409,29 @@ function loadCompletedTasks() {
     onSnapshot(q, async (snapshot) => {
         const employeesSnap = await getDocs(collection(db, 'rooms', currentRoomId, 'employees'));
         const employeeNames = {};
-        employeesSnap.forEach(doc => {
-            employeeNames[doc.id] = doc.data().name;
-        });
+        employeesSnap.forEach(doc => { employeeNames[doc.id] = doc.data().name; });
         
         const completedTasks = [];
         snapshot.forEach(doc => {
             const task = doc.data();
-            if (task.status === 'done' || task.status === 'failed') {
-                completedTasks.push({ id: doc.id, ...task });
-            }
+            if (task.status === 'done' || task.status === 'failed') completedTasks.push({ id: doc.id, ...task });
         });
         
         if (completedTasks.length === 0) {
-            container.innerHTML = '<div class="empty-small">Пока нет выполненных задач</div>';
+            container.innerHTML = '<div class="empty-small">Нет выполненных задач</div>';
             return;
         }
         
         container.innerHTML = '';
         completedTasks.slice(0, 10).forEach(task => {
-            const taskItem = document.createElement('div');
-            taskItem.className = 'completed-task-item';
+            const item = document.createElement('div');
+            item.className = 'completed-task-item';
             const statusIcon = task.status === 'done' ? '✅' : '❌';
             const employeeName = employeeNames[task.assigneeId] || 'Неизвестный';
             const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleDateString() : 'без дедлайна';
-            
-            taskItem.innerHTML = `
-                <span>${statusIcon} ${escapeHtml(task.title)}</span>
-                <span class="completed-meta">${deadlineStr} · ${escapeHtml(employeeName)}</span>
-            `;
-            container.appendChild(taskItem);
+            item.innerHTML = `<span>${statusIcon} ${escapeHtml(task.title)}</span><span class="completed-meta">${deadlineStr} · ${escapeHtml(employeeName)}</span>`;
+            container.appendChild(item);
         });
-        
         if (completedTasks.length > 10) {
             const more = document.createElement('div');
             more.className = 'completed-more';
@@ -555,12 +441,10 @@ function loadCompletedTasks() {
     });
 }
 
-// ========== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ==========
 function loadEmployeesForSelect() {
     if (!currentRoomId) return;
     const select = document.getElementById('taskAssigneeSelect');
     if (!select) return;
-    
     const q = query(collection(db, 'rooms', currentRoomId, 'employees'));
     onSnapshot(q, (snapshot) => {
         select.innerHTML = '<option value="">Выберите сотрудника</option>';
@@ -571,8 +455,7 @@ function loadEmployeesForSelect() {
     });
 }
 
-async function addEmployeeToRoom(name, telegram) {
-    if (!currentRoomId) return;
+async function addEmployee(name, telegram) {
     try {
         await addDoc(collection(db, 'rooms', currentRoomId, 'employees'), {
             name: name.trim(),
@@ -581,33 +464,31 @@ async function addEmployeeToRoom(name, telegram) {
         });
         await showMessage('Успех', '✅ Сотрудник добавлен', 'success');
     } catch (error) {
-        await showMessage('Ошибка', '❌ Ошибка: ' + error.message, 'error');
+        await showMessage('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
-async function deleteEmployeeFromRoom(employeeId) {
-    const confirmed = await showConfirm('Удаление', 'Удалить сотрудника? Все его задачи останутся, но он не сможет их отмечать.');
+async function deleteEmployee(employeeId) {
+    const confirmed = await showConfirm('Удаление', 'Удалить сотрудника?');
     if (!confirmed) return;
-    
     try {
         await deleteDoc(doc(db, 'rooms', currentRoomId, 'employees', employeeId));
         await showMessage('Успех', '✅ Сотрудник удалён', 'success');
+        loadEmployees();
         loadActiveTasks();
         loadCompletedTasks();
-        loadEmployeesCards();
     } catch (error) {
-        await showMessage('Ошибка', '❌ Ошибка: ' + error.message, 'error');
+        await showMessage('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
 function showEmployeeLink(employeeId, employeeName) {
     const link = `${window.location.origin}/employee.html?room=${currentRoomId}&employee=${employeeId}`;
     navigator.clipboard.writeText(link);
-    showMessage('Ссылка скопирована', `🔗 Ссылка для ${employeeName} скопирована!\nОтправьте её сотруднику.`, 'success');
+    showMessage('Ссылка скопирована', `🔗 Ссылка для ${employeeName}`, 'success');
 }
 
 async function createTask(title, description, deadline, assigneeId) {
-    if (!currentRoomId) return;
     try {
         await addDoc(collection(db, 'rooms', currentRoomId, 'tasks'), {
             title: title.trim(),
@@ -619,36 +500,11 @@ async function createTask(title, description, deadline, assigneeId) {
             updatedAt: new Date()
         });
         await showMessage('Успех', '✅ Задача создана', 'success');
-        
-        // ========== ОТПРАВКА УВЕДОМЛЕНИЯ В TELEGRAM ==========
-        try {
-            // Получаем название комнаты
-            const roomDoc = await getDoc(doc(db, 'rooms', currentRoomId));
-            const roomName = roomDoc.exists() ? roomDoc.data().name : 'Без названия';
-            
-            // Получаем Telegram ID сотрудника
-            const employeeDoc = await getDoc(doc(db, 'rooms', currentRoomId, 'employees', assigneeId));
-            const telegramId = employeeDoc.exists() ? employeeDoc.data().telegramId : null;
-            
-            // Если есть Telegram ID, отправляем уведомление
-            if (telegramId) {
-                await notifyNewTask({
-                    title: title.trim(),
-                    description: description?.trim() || '',
-                    deadline: deadline,
-                    assigneeId: assigneeId,
-                    roomId: currentRoomId
-                }, telegramId, roomName);
-            }
-        } catch (telegramError) {
-            console.warn('Telegram уведомление не отправлено:', telegramError.message);
-        }
-        // ========== КОНЕЦ БЛОКА TELEGRAM ==========
-        
     } catch (error) {
-        await showMessage('Ошибка', '❌ Ошибка: ' + error.message, 'error');
+        await showMessage('Ошибка', '❌ ' + error.message, 'error');
     }
 }
+
 async function updateTaskStatus(taskId, newStatus, reason = '') {
     try {
         const updateData = { status: newStatus, updatedAt: new Date() };
@@ -656,21 +512,20 @@ async function updateTaskStatus(taskId, newStatus, reason = '') {
         if (newStatus === 'done') updateData.completedAt = new Date();
         
         await updateDoc(doc(db, 'rooms', currentRoomId, 'tasks', taskId), updateData);
-        await showMessage('Успех', `✅ Задача ${newStatus === 'done' ? 'выполнена' : 'отмечена как проваленная'}`, 'success');
+        await showMessage('Успех', `✅ Задача ${newStatus === 'done' ? 'выполнена' : 'отмечена'}`, 'success');
         loadActiveTasks();
         loadCompletedTasks();
-        loadEmployeesCards();
+        loadEmployees();
     } catch (error) {
-        await showMessage('Ошибка', '❌ Ошибка: ' + error.message, 'error');
+        await showMessage('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
-async function editEmployee(employeeId, currentName, currentTelegram) {
+async function editEmployee(employeeId, currentName, currentTelegram, currentTelegramId) {
     const result = await showFormModal('Редактировать сотрудника', [
         { name: 'name', label: 'Имя', type: 'text', value: currentName },
         { name: 'telegram', label: 'Telegram', type: 'text', value: currentTelegram || '' }
     ], 'Сохранить');
-    
     if (!result) return;
     
     try {
@@ -679,20 +534,19 @@ async function editEmployee(employeeId, currentName, currentTelegram) {
             telegram: result.telegram?.trim() || '',
             updatedAt: new Date()
         });
-        await showMessage('Успех', 'Данные сотрудника обновлены', 'success');
-        loadEmployeesCards();
+        await showMessage('Успех', '✅ Данные обновлены', 'success');
+        loadEmployees();
         loadEmployeesForSelect();
     } catch (error) {
-        await showMessage('Ошибка', error.message, 'error');
+        await showMessage('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
 async function editTask(taskId, currentTitle, currentDescription, currentDeadline, currentAssigneeId) {
     const employeesSnap = await getDocs(collection(db, 'rooms', currentRoomId, 'employees'));
     const employeeOptions = employeesSnap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
-    
     if (employeeOptions.length === 0) {
-        await showMessage('Ошибка', 'Нет сотрудников в комнате.', 'error');
+        await showMessage('Ошибка', 'Нет сотрудников', 'error');
         return;
     }
     
@@ -703,21 +557,15 @@ async function editTask(taskId, currentTitle, currentDescription, currentDeadlin
     }
     
     const result = await showFormModal('Редактировать задачу', [
-        { name: 'title', label: 'Название задачи *', type: 'text', value: currentTitle },
+        { name: 'title', label: 'Название', type: 'text', value: currentTitle },
         { name: 'description', label: 'Описание', type: 'textarea', value: currentDescription || '' },
         { name: 'deadline', label: 'Дедлайн', type: 'datetime-local', value: formattedDeadline },
-        { name: 'assigneeId', label: 'Ответственный сотрудник *', type: 'select', options: employeeOptions, value: currentAssigneeId }
-    ], '💾 Сохранить');
+        { name: 'assigneeId', label: 'Сотрудник', type: 'select', options: employeeOptions, value: currentAssigneeId }
+    ], 'Сохранить');
     
     if (!result) return;
-    if (!result.title.trim()) {
-        await showMessage('Ошибка', 'Название не может быть пустым', 'error');
-        return;
-    }
-    if (!result.assigneeId) {
-        await showMessage('Ошибка', 'Выберите сотрудника', 'error');
-        return;
-    }
+    if (!result.title.trim()) return showMessage('Ошибка', 'Введите название', 'error');
+    if (!result.assigneeId) return showMessage('Ошибка', 'Выберите сотрудника', 'error');
     
     try {
         await updateDoc(doc(db, 'rooms', currentRoomId, 'tasks', taskId), {
@@ -731,48 +579,8 @@ async function editTask(taskId, currentTitle, currentDescription, currentDeadlin
         loadActiveTasks();
         loadCompletedTasks();
     } catch (error) {
-        await showMessage('Ошибка', '❌ Ошибка: ' + error.message, 'error');
+        await showMessage('Ошибка', '❌ ' + error.message, 'error');
     }
-}
-
-function checkDeadlinesAndNotify(tasks) {
-    const now = new Date();
-    const soonTasks = [];
-    
-    tasks.forEach(task => {
-        if (task.status !== 'pending') return;
-        if (!task.deadline) return;
-        
-        const deadline = new Date(task.deadline);
-        const hoursLeft = (deadline - now) / (1000 * 60 * 60);
-        const taskKey = `${task.id}_${task.assigneeId}`;
-        
-        if ((hoursLeft <= 24 && hoursLeft > 23) || (hoursLeft <= 1 && hoursLeft > 0)) {
-            if (!notifiedTasks.has(taskKey)) {
-                notifiedTasks.add(taskKey);
-                soonTasks.push({ title: task.title, hoursLeft: hoursLeft });
-            }
-        }
-        
-        if (deadline < now && !notifiedTasks.has(`overdue_${task.id}`)) {
-            notifiedTasks.add(`overdue_${task.id}`);
-            soonTasks.push({ title: task.title, isOverdue: true });
-        }
-    });
-    
-    if (soonTasks.length > 0) {
-        const message = soonTasks.map(t => {
-            if (t.isOverdue) return `⚠️ ПРОСРОЧЕНО: "${t.title}"`;
-            return `⚠️ "${t.title}" — дедлайн через ${Math.round(t.hoursLeft)} ${declensionHours(Math.round(t.hoursLeft))}`;
-        }).join('\n');
-        showMessage('⏰ Внимание! Дедлайны', message, 'warning');
-    }
-}
-
-function declensionHours(hours) {
-    if (hours % 10 === 1 && hours % 100 !== 11) return 'час';
-    if ([2,3,4].includes(hours % 10) && ![12,13,14].includes(hours % 100)) return 'часа';
-    return 'часов';
 }
 
 function getDeclension(count) {
@@ -786,31 +594,24 @@ function escapeHtml(str) {
     return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m] || m));
 }
 
-// ========== КНОПКИ ВЫХОДА И СОЗДАНИЯ КОМНАТЫ ==========
-const logoutBtn = document.getElementById('logoutBtn');
-if (logoutBtn) logoutBtn.onclick = () => logout();
-
+// Кнопки выхода и создания комнаты
+document.getElementById('logoutBtn').onclick = () => logout();
 const createRoomBtn = document.getElementById('createRoomBtn');
 const createRoomModal = document.getElementById('createRoomModal');
 const createRoomForm = document.getElementById('createRoomForm');
 
-if (createRoomBtn && createRoomModal) {
+if (createRoomBtn) {
     createRoomBtn.onclick = () => createRoomModal.style.display = 'flex';
     const closeModal = createRoomModal.querySelector('.modal-close');
     if (closeModal) closeModal.onclick = () => createRoomModal.style.display = 'none';
-    if (createRoomForm) {
-        createRoomForm.onsubmit = async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('roomName').value;
-            if (await createRoom(name)) {
-                createRoomModal.style.display = 'none';
-                createRoomForm.reset();
-            }
-        };
-    }
-    window.onclick = (e) => { if (e.target === createRoomModal) createRoomModal.style.display = 'none'; };
+    createRoomForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const name = document.getElementById('roomName').value;
+        if (await createRoom(name)) {
+            createRoomModal.style.display = 'none';
+            createRoomForm.reset();
+        }
+    };
 }
 
 window.currentRoomId = currentRoomId;
-window.loadEmployeesCards = loadEmployeesCards;
-window.loadEmployeesForSelect = loadEmployeesForSelect;

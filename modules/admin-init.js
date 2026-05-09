@@ -118,8 +118,6 @@ async function selectRoom(roomId, roomName) {
         
         <div class="room-tabs">
             <button class="room-tab active" data-tab="tasks">📋 Задачи</button>
-            <button class="room-tab" data-tab="statistics">📊 Статистика</button>
-            <button class="room-tab" data-tab="global">🌍 Общий стек</button>
             <button class="room-tab" data-tab="templates">📝 Шаблоны</button>
         </div>
         

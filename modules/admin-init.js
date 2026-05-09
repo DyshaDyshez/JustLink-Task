@@ -483,7 +483,7 @@ async function deleteEmployee(employeeId) {
 }
 
 function showEmployeeLink(employeeId, employeeName) {
-    const link = `${window.location.origin}/employee.html?room=${currentRoomId}&employee=${employeeId}`;
+    const link = `${window.location.origin}/JustLink-Task/employee.html?room=${currentRoomId}&employee=${employeeId}`;
     navigator.clipboard.writeText(link);
     showMessage('Ссылка скопирована', `🔗 Ссылка для ${employeeName}`, 'success');
 }

@@ -2,7 +2,7 @@
  * admin-init.js
  * Админ-панель
  */
-
+import { showToast } from './toast.js';
 import { auth, logout } from './auth.js';
 import { db } from './firebase-init.js';
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
@@ -65,10 +65,10 @@ async function createRoom(name) {
             adminId: user.uid,
             createdAt: new Date()
         });
-        await showMessage('Успех', '✅ Комната создана', 'success');
+        showToast(' Комната создана', 'success');
         return true;
     } catch (error) {
-        await showMessage('Ошибка', error.message, 'error');
+        showToast('Ошибка', error.message, 'error');
         return false;
     }
 }
@@ -111,7 +111,7 @@ async function selectRoom(roomId, roomName) {
                     <select id="taskAssigneeSelect" class="task-select">
                         <option value="">Выберите сотрудника</option>
                     </select>
-                    <button id="createTaskBtn" class="btn-primary btn-block">✅ Создать</button>
+                    <button id="createTaskBtn" class="btn-primary btn-block"> Создать</button>
                 </div>
             </div>
         </div>
@@ -142,7 +142,7 @@ async function selectRoom(roomId, roomName) {
                         <div class="loading-spinner">Загрузка...</div>
                     </div>
                     <details class="completed-section">
-                        <summary class="completed-summary">✅ Выполненные</summary>
+                        <summary class="completed-summary"> Выполненные</summary>
                         <div id="completedTasksContainer" class="completed-tasks-list"></div>
                     </details>
                 </div>
@@ -381,7 +381,7 @@ function loadActiveTasks() {
                     <span>👤 ${escapeHtml(employeeName)}</span>
                 </div>
                 <div class="task-actions">
-                    <button class="task-done-btn" data-id="${task.id}">✅ Выполнить</button>
+                    <button class="task-done-btn" data-id="${task.id}"> Выполнить</button>
                     <button class="task-fail-btn" data-id="${task.id}">❌ Отказ</button>
                 </div>
             `;
@@ -426,7 +426,7 @@ function loadCompletedTasks() {
         completedTasks.slice(0, 10).forEach(task => {
             const item = document.createElement('div');
             item.className = 'completed-task-item';
-            const statusIcon = task.status === 'done' ? '✅' : '❌';
+            const statusIcon = task.status === 'done' ? '' : '❌';
             const employeeName = employeeNames[task.assigneeId] || 'Неизвестный';
             const deadlineStr = task.deadline ? new Date(task.deadline).toLocaleDateString() : 'без дедлайна';
             item.innerHTML = `<span>${statusIcon} ${escapeHtml(task.title)}</span><span class="completed-meta">${deadlineStr} · ${escapeHtml(employeeName)}</span>`;
@@ -462,9 +462,9 @@ async function addEmployee(name, telegram) {
             telegram: telegram?.trim() || '',
             createdAt: new Date()
         });
-        await showMessage('Успех', '✅ Сотрудник добавлен', 'success');
+        showToast(' Сотрудник добавлен', 'success');
     } catch (error) {
-        await showMessage('Ошибка', '❌ ' + error.message, 'error');
+        showToast('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
@@ -473,19 +473,57 @@ async function deleteEmployee(employeeId) {
     if (!confirmed) return;
     try {
         await deleteDoc(doc(db, 'rooms', currentRoomId, 'employees', employeeId));
-        await showMessage('Успех', '✅ Сотрудник удалён', 'success');
+        showToast( ' Сотрудник удалён', 'success');
         loadEmployees();
         loadActiveTasks();
         loadCompletedTasks();
     } catch (error) {
-        await showMessage('Ошибка', '❌ ' + error.message, 'error');
+        showToast('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
 function showEmployeeLink(employeeId, employeeName) {
-    const link = `${window.location.origin}/JustLink-Task/employee.html?room=${currentRoomId}&employee=${employeeId}`;
+    const link = `${window.location.origin}/employee.html?room=${currentRoomId}&employee=${employeeId}`;
     navigator.clipboard.writeText(link);
-    showMessage('Ссылка скопирована', `🔗 Ссылка для ${employeeName}`, 'success');
+    
+    // Временное уведомление (исчезает через 2 секунды)
+    const toast = document.createElement('div');
+    toast.textContent = ' Ссылка скопирована';
+    toast.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #28a745;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 14px;
+        z-index: 10000;
+        animation: fadeInOut 2s ease forwards;
+        font-family: sans-serif;
+    `;
+    
+    // Добавляем анимацию, если ещё нет
+    if (!document.querySelector('#toast-animation-style')) {
+        const style = document.createElement('style');
+        style.id = 'toast-animation-style';
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+                15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+                100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.remove();
+    }, 2000);
 }
 
 async function createTask(title, description, deadline, assigneeId) {
@@ -499,9 +537,9 @@ async function createTask(title, description, deadline, assigneeId) {
             createdAt: new Date(),
             updatedAt: new Date()
         });
-        await showMessage('Успех', '✅ Задача создана', 'success');
+        showToast( ' Задача создана', 'success');
     } catch (error) {
-        await showMessage('Ошибка', '❌ ' + error.message, 'error');
+        showToast('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
@@ -512,12 +550,12 @@ async function updateTaskStatus(taskId, newStatus, reason = '') {
         if (newStatus === 'done') updateData.completedAt = new Date();
         
         await updateDoc(doc(db, 'rooms', currentRoomId, 'tasks', taskId), updateData);
-        await showMessage('Успех', `✅ Задача ${newStatus === 'done' ? 'выполнена' : 'отмечена'}`, 'success');
+        showToast( ` Задача ${newStatus === 'done' ? 'выполнена' : 'отмечена'}`, 'success');
         loadActiveTasks();
         loadCompletedTasks();
         loadEmployees();
     } catch (error) {
-        await showMessage('Ошибка', '❌ ' + error.message, 'error');
+        showToast('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
@@ -534,11 +572,11 @@ async function editEmployee(employeeId, currentName, currentTelegram, currentTel
             telegram: result.telegram?.trim() || '',
             updatedAt: new Date()
         });
-        await showMessage('Успех', '✅ Данные обновлены', 'success');
+        showToast( ' Данные обновлены', 'success');
         loadEmployees();
         loadEmployeesForSelect();
     } catch (error) {
-        await showMessage('Ошибка', '❌ ' + error.message, 'error');
+        showToast('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 
@@ -546,7 +584,7 @@ async function editTask(taskId, currentTitle, currentDescription, currentDeadlin
     const employeesSnap = await getDocs(collection(db, 'rooms', currentRoomId, 'employees'));
     const employeeOptions = employeesSnap.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
     if (employeeOptions.length === 0) {
-        await showMessage('Ошибка', 'Нет сотрудников', 'error');
+        showToast('Ошибка', 'Нет сотрудников', 'error');
         return;
     }
     
@@ -575,11 +613,11 @@ async function editTask(taskId, currentTitle, currentDescription, currentDeadlin
             assigneeId: result.assigneeId,
             updatedAt: new Date()
         });
-        await showMessage('Успех', '✅ Задача обновлена', 'success');
+        showToast( ' Задача обновлена', 'success');
         loadActiveTasks();
         loadCompletedTasks();
     } catch (error) {
-        await showMessage('Ошибка', '❌ ' + error.message, 'error');
+        showToast('Ошибка', '❌ ' + error.message, 'error');
     }
 }
 

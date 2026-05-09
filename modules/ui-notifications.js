@@ -2,7 +2,7 @@
  * ui-notifications.js
  * Стилизованные модалки вместо alert/confirm/prompt
  */
-
+import { showToast } from './toast.js';
 // Показываем модальное сообщение (alert)
 export function showMessage(title, message, type = 'info') {
     // Удаляем старую модалку, если есть

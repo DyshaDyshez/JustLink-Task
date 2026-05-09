@@ -89,7 +89,7 @@ export async function deleteEmployee(employeeId) {
 
 // Получить ссылку для сотрудника
 export function getEmployeeLink(roomId, employeeId) {
-    return `${window.location.origin}/employee.html?room=${roomId}&employee=${employeeId}`;
+    return `${window.location.origin}/JustLink-Task/employee.html?room=${roomId}&employee=${employeeId}`;
 }
 
 // Простая защита от XSS

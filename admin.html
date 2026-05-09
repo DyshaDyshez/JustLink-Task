@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JustLink Task — Панель управления</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+    <div class="admin-layout">
+        <!-- Сайдбар -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-header">
+                <div class="logo-small">
+                    <span class="logo-icon">✓</span>
+                    <span>JustLink Task</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <button id="createRoomBtn" class="btn-sidebar-primary">+ Новая комната</button>
+            </div>
+            
+            <div class="sidebar-section">
+                <h3>Мои комнаты</h3>
+                <div id="roomsList" class="rooms-list">
+                    <!-- Список комнат будет тут -->
+                    <div class="empty-message">Нет комнат. Создайте первую!</div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button id="logoutBtn" class="btn-logout">Выйти</button>
+            </div>
+        </aside>
+        
+        <!-- Основной контент -->
+        <main class="admin-main">
+            <div id="roomContent" class="room-content">
+                <div class="welcome-message">
+                    <h2>Добро пожаловать!</h2>
+                    <p>Выберите комнату из списка слева или создайте новую</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Модалка создания комнаты -->
+    <div id="createRoomModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Создать новую комнату</h2>
+            <form id="createRoomForm">
+                <div class="form-group">
+                    <label for="roomName">Название комнаты</label>
+                    <input type="text" id="roomName" placeholder="Например: Маркетинг, Разработка..." required>
+                </div>
+                <button type="submit" class="btn-primary btn-block">Создать</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="modules/admin-init.js"></script>
+</body>
+</html>

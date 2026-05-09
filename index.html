@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>JustLink Task — Управление задачами для команд</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="landing-wrapper">
+        <!-- Hero секция -->
+        <header class="hero">
+            <div class="container">
+                <div class="logo">
+                    <span class="logo-icon">✓</span>
+                    <span class="logo-text">JustLink Task</span>
+                </div>
+                <h1>Управляйте задачами без лишней бюрократии</h1>
+                <p class="subtitle">Простая доска для руководителей и сотрудников. Без регистрации для команды — только ссылка и имя.</p>
+                <button id="startAdminBtn" class="btn-primary">Начать как руководитель →</button>
+            </div>
+        </header>
+
+        <!-- Блок с преимуществами -->
+        <section class="features">
+            <div class="container">
+                <h2>Как это работает</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🏢</div>
+                        <h3>1. Создайте комнату</h3>
+                        <p>Руководитель создаёт проект и получает ссылку-приглашение</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✉️</div>
+                        <h3>2. Отправьте ссылку</h3>
+                        <p>Просто киньте ссылку в Telegram или любой мессенджер</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👤</div>
+                        <h3>3. Введите имя</h3>
+                        <p>Сотрудник вводит своё имя и видит только свои задачи</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✅</div>
+                        <h3>4. Отмечайте выполнение</h3>
+                        <p>Один клик — и задача выполнена. Админ видит статистику</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Блок для входа руководителя (всплывающее окно) -->
+        <div id="adminLoginModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>Вход для руководителя</h2>
+                <p>Войдите в свою учётную запись, чтобы создать комнату и управлять задачами</p>
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label for="loginEmail">Email</label>
+                        <input type="email" id="loginEmail" placeholder="ivan@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Пароль</label>
+                        <input type="password" id="loginPassword" placeholder="••••••" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Войти</button>
+                    <p class="form-footer">
+                        Нет аккаунта? <a href="#" id="showRegisterLink">Зарегистрироваться</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Блок для регистрации руководителя (всплывающее окно) -->
+        <div id="adminRegisterModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span class="modal-close">&times;</span>
+                <h2>Регистрация руководителя</h2>
+                <p>Создайте аккаунт и получите доступ к панели управления</p>
+                <form id="adminRegisterForm">
+                    <div class="form-group">
+                        <label for="registerEmail">Email</label>
+                        <input type="email" id="registerEmail" placeholder="ivan@company.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Пароль</label>
+                        <input type="password" id="registerPassword" placeholder="минимум 6 символов" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword">Подтвердите пароль</label>
+                        <input type="password" id="registerConfirmPassword" placeholder="••••••" required>
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Зарегистрироваться</button>
+                    <p class="form-footer">
+                        Уже есть аккаунт? <a href="#" id="showLoginLink">Войти</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Футер -->
+        <footer class="footer">
+            <div class="container">
+                <p>JustLink Task — простое решение для небольших команд</p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module" src="modules/auth.js"></script>
+</body>
+</html>

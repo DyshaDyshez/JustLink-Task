@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JustLink Task — Мои задачи</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="employee-body">
+    <div class="employee-container">
+        <!-- Шапка -->
+        <header class="employee-header">
+            <div class="logo-small">
+                <span class="logo-icon">✓</span>
+                <span>JustLink Task</span>
+            </div>
+            <div class="employee-user">
+                <span id="employeeNameDisplay" class="employee-name-badge">Загрузка...</span>
+                <button id="changeNameBtn" class="btn-icon-small" title="Сменить имя">✏️</button>
+            </div>
+        </header>
+
+        <!-- Основной контент -->
+        <main class="employee-main">
+            <h1 class="employee-title">📋 Мои задачи</h1>
+            
+            <!-- Активные задачи -->
+            <div id="activeTasksContainer" class="employee-tasks-list">
+                <div class="loading-spinner">Загрузка задач...</div>
+            </div>
+            
+            <!-- Выполненные задачи (сворачиваемые) -->
+            <details class="employee-completed-section" open>
+                <summary class="employee-completed-summary">✅ Выполненные и отклонённые</summary>
+                <div id="completedTasksContainer" class="employee-completed-list">
+                    <div class="empty-small">Нет выполненных задач</div>
+                </div>
+            </details>
+        </main>
+        
+        <!-- Футер -->
+        <footer class="employee-footer">
+            <p>JustLink Task — ваши задачи всегда под рукой</p>
+        </footer>
+    </div>
+
+    <!-- Модалка смены имени -->
+    <div id="changeNameModal" class="modal-task" style="display: none;">
+        <div class="modal-task-content">
+            <div class="modal-task-header">
+                <h3>✏️ Сменить имя</h3>
+                <span class="modal-close-name">&times;</span>
+            </div>
+            <div class="modal-task-body">
+                <input type="text" id="newNameInput" placeholder="Ваше имя" class="task-input">
+                <button id="saveNameBtn" class="btn-primary btn-block">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="modules/employee-init.js"></script>
+</body>
+</html>

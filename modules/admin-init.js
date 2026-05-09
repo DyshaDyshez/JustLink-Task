@@ -481,7 +481,7 @@ async function deleteEmployee(employeeId) {
 }
 
 function showEmployeeLink(employeeId, employeeName) {
-    const link = `${window.location.origin}/employee.html?room=${currentRoomId}&employee=${employeeId}`;
+    const link = `${window.location.origin}/JustLink-Task/employee.html?room=${currentRoomId}&employee=${employeeId}`;
     navigator.clipboard.writeText(link);
     
     // Временное уведомление (исчезает через 2 секунды)
